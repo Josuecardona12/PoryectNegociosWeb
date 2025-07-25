@@ -1,103 +1,63 @@
 <?php
-
 namespace Dao\Cart;
 
-class Cart extends \Dao\Table
+use Dao\Table;
+
+class Cart extends Table
 {
-    public static function getProductosDisponibles()
+    public static function getCartBySession(string $sessionId)
     {
-        $sqlAllProductosActivos = "SELECT * from products where productStatus in ('ACT');";
-        $productosDisponibles = self::obtenerRegistros($sqlAllProductosActivos, array());
-
-        //Sacar el stock de productos con carretilla autorizada
-        $deltaAutorizada = \Utilities\Cart\CartFns::getAuthTimeDelta();
-        $sqlCarretillaAutorizada = "select productId, sum(crrctd) as reserved
-            from carretilla where TIME_TO_SEC(TIMEDIFF(now(), crrfching)) <= :delta
-            group by productId;";
-        $prodsCarretillaAutorizada = self::obtenerRegistros(
-            $sqlCarretillaAutorizada,
-            array("delta" => $deltaAutorizada)
-        );
-        //Sacar el stock de productos con carretilla no autorizada
-        $deltaNAutorizada = \Utilities\Cart\CartFns::getUnAuthTimeDelta();
-        $sqlCarretillaNAutorizada = "select productId, sum(crrctd) as reserved
-            from carretillaanom where TIME_TO_SEC(TIMEDIFF(now(), crrfching)) <= :delta
-            group by productId;";
-        $prodsCarretillaNAutorizada = self::obtenerRegistros(
-            $sqlCarretillaNAutorizada,
-            array("delta" => $deltaNAutorizada)
-        );
-        $productosCurados = array();
-        foreach ($productosDisponibles as $producto) {
-            if (!isset($productosCurados[$producto["productId"]])) {
-                $productosCurados[$producto["productId"]] = $producto;
-            }
-        }
-        foreach ($prodsCarretillaAutorizada as $producto) {
-            if (isset($productosCurados[$producto["productId"]])) {
-                $productosCurados[$producto["productId"]]["productStock"] -= $producto["reserved"];
-            }
-        }
-        foreach ($prodsCarretillaNAutorizada as $producto) {
-            if (isset($productosCurados[$producto["productId"]])) {
-                $productosCurados[$producto["productId"]]["productStock"] -= $producto["reserved"];
-            }
-        }
-        $productosDisponibles = null;
-        $prodsCarretillaAutorizada = null;
-        $prodsCarretillaNAutorizada = null;
-        return $productosCurados;
+        $sql = "SELECT * FROM cart_header WHERE sessionId = :sessionId AND status = 'active' LIMIT 1";
+        $params = [":sessionId" => $sessionId];
+        return self::obtenerUnRegistro($sql, $params);
     }
 
-    public static function getProductoDisponible($productId)
+    public static function createCart(string $sessionId)
     {
-        $sqlAllProductosActivos = "SELECT * from products where productStatus in ('ACT') and productId=:productId;";
-        $productosDisponibles = self::obtenerRegistros($sqlAllProductosActivos, array("productId" => $productId));
-
-        //Sacar el stock de productos con carretilla autorizada
-        $deltaAutorizada = \Utilities\Cart\CartFns::getAuthTimeDelta();
-        $sqlCarretillaAutorizada = "select productId, sum(crrctd) as reserved
-            from carretilla where productId=:productId and TIME_TO_SEC(TIMEDIFF(now(), crrfching)) <= :delta
-            group by productId;";
-        $prodsCarretillaAutorizada = self::obtenerRegistros(
-            $sqlCarretillaAutorizada,
-            array("productId" => $productId, "delta" => $deltaAutorizada)
-        );
-        //Sacar el stock de productos con carretilla no autorizada
-        $deltaNAutorizada = \Utilities\Cart\CartFns::getUnAuthTimeDelta();
-        $sqlCarretillaNAutorizada = "select productId, sum(crrctd) as reserved
-            from carretillaanom where productId = :productId and TIME_TO_SEC(TIMEDIFF(now(), crrfching)) <= :delta
-            group by productId;";
-        $prodsCarretillaNAutorizada = self::obtenerRegistros(
-            $sqlCarretillaNAutorizada,
-            array("productId" => $productId, "delta" => $deltaNAutorizada)
-        );
-        $productosCurados = array();
-        foreach ($productosDisponibles as $producto) {
-            if (!isset($productosCurados[$producto["productId"]])) {
-                $productosCurados[$producto["productId"]] = $producto;
-            }
-        }
-        foreach ($prodsCarretillaAutorizada as $producto) {
-            if (isset($productosCurados[$producto["productId"]])) {
-                $productosCurados[$producto["productId"]]["productStock"] -= $producto["reserved"];
-            }
-        }
-        foreach ($prodsCarretillaNAutorizada as $producto) {
-            if (isset($productosCurados[$producto["productId"]])) {
-                $productosCurados[$producto["productId"]]["productStock"] -= $producto["reserved"];
-            }
-        }
-        $productosDisponibles = null;
-        $prodsCarretillaAutorizada = null;
-        $prodsCarretillaNAutorizada = null;
-        return $productosCurados;
+        $sql = "INSERT INTO cart_header (sessionId) VALUES (:sessionId)";
+        $params = [":sessionId" => $sessionId];
+        self::executeNonQuery($sql, $params);
+        return self::getCartBySession($sessionId);
     }
 
-    public static function getProducto($productId)
+    public static function addProductToCart(string $sessionId, int $productId, int $quantity, float $price)
     {
-        $sqlAllProductosActivos = "SELECT * from products where productId=:productId;";
-        $productosDisponibles = self::obtenerRegistros($sqlAllProductosActivos, array("productId" => $productId));
-        return $productosDisponibles;
+        $cart = self::getCartBySession($sessionId);
+        if (!$cart) {
+            $cart = self::createCart($sessionId);
+        }
+
+        // Verificar si el producto ya está en el carrito para actualizar cantidad
+        $sql = "SELECT * FROM cart_items WHERE cartId = :cartId AND productId = :productId LIMIT 1";
+        $params = [":cartId" => $cart["cartId"], ":productId" => $productId];
+        $item = self::obtenerUnRegistro($sql, $params);
+
+        if ($item) {
+            // Actualizar cantidad
+            $newQuantity = $item["quantity"] + $quantity;
+            $sql = "UPDATE cart_items SET quantity = :quantity WHERE itemId = :itemId";
+            $params = [":quantity" => $newQuantity, ":itemId" => $item["itemId"]];
+            self::executeNonQuery($sql, $params);
+        } else {
+            // Insertar nuevo producto en carrito
+            $sql = "INSERT INTO cart_items (cartId, productId, quantity, price) VALUES (:cartId, :productId, :quantity, :price)";
+            $params = [
+                ":cartId" => $cart["cartId"],
+                ":productId" => $productId,
+                ":quantity" => $quantity,
+                ":price" => $price
+            ];
+            self::executeNonQuery($sql, $params);
+        }
+    }
+
+    public static function getCartItems(string $sessionId)
+    {
+        $cart = self::getCartBySession($sessionId);
+        if (!$cart) return [];
+
+        $sql = "SELECT ci.*, p.productName, p.productImgUrl FROM cart_items ci INNER JOIN products p ON ci.productId = p.productId WHERE ci.cartId = :cartId";
+        $params = [":cartId" => $cart["cartId"]];
+        return self::obtenerRegistros($sql, $params);
     }
 }
