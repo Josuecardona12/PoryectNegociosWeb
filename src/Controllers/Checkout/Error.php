@@ -2,14 +2,12 @@
 
 namespace Controllers\Checkout;
 
-use Controllers\PublicController;
-class Error extends PublicController
+use Views\Renderer;
+
+class Error extends \Controllers\PublicController
 {
     public function run(): void
     {
-        echo "error";
-        die();
+        Renderer::render("errorc", []);
     }
 }
-
-?>

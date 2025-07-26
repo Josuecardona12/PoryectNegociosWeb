@@ -14,8 +14,13 @@
   <div class="cart-total">
     <h3>Total del Carrito: L {{cartTotal}}</h3>
   </div>
-  <div class="paypal-checkout">
-  <form action="index.php?page=checkout_checkout" method="POST">
-    <button type="submit" class="paypal-button">Pagar con PayPal</button>
-  </form>
+  <div class="actions">
+    <div class="actions" style="margin-top: 15px;">
+    <a href="index.php?page=HomeController" class="btn-back-to-cart" style="margin-right: 15px; padding: 8px 12px; background:#ccc; border:none; border-radius:4px; text-decoration:none; color:#000;">
+      ← Volver al Carrito
+    </a>
+    <form action="index.php?page=Checkout_Checkout" method="POST" style="display:inline-block;">
+      <button type="submit" class="payment-button">Pagar</button>
+    </form>
+  </div>
 </div>

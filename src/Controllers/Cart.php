@@ -1,5 +1,4 @@
 <?php
-
 namespace Controllers;
 
 use Dao\Cart\Cart as CartDao;
@@ -10,10 +9,8 @@ class Cart extends PublicController
 {
     public function run(): void
     {
-        session_start(); // para obtener session_id()
         $sessionId = session_id();
 
-        // Procesar formulario POST (agregar al carrito)
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $action = $_POST["action"] ?? null;
             if ($action === "add") {
@@ -29,6 +26,9 @@ class Cart extends PublicController
                         );
                     }
                 }
+                // Redirigir para evitar reenvío al recargar la página
+                header("Location: index.php?page=Cart");
+                exit;
             }
         }
 
@@ -36,7 +36,6 @@ class Cart extends PublicController
         $cartItems = CartDao::getCartItems($sessionId);
         $total = 0;
 
-        // Agregar campo subtotal por producto y calcular total
         foreach ($cartItems as &$item) {
             $item["quantity"] = (int)$item["quantity"];
             $item["price"] = (float)$item["price"];

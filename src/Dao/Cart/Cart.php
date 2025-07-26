@@ -19,6 +19,19 @@ class Cart extends Table
         self::executeNonQuery($sql, $params);
         return self::getCartBySession($sessionId);
     }
+    public static function clearCart(string $sessionId)
+{
+    $cart = self::getCartBySession($sessionId);
+    if ($cart) {
+        $sql = "DELETE FROM cart_items WHERE cartId = :cartId";
+        self::executeNonQuery($sql, [":cartId" => $cart["cartId"]]);
+
+        // También puedes marcar el carrito como 'completed' si usas estado
+        $sql = "UPDATE cart_header SET status = 'completed' WHERE cartId = :cartId";
+        self::executeNonQuery($sql, [":cartId" => $cart["cartId"]]);
+    }
+}
+
 
     public static function addProductToCart(string $sessionId, int $productId, int $quantity, float $price)
     {
