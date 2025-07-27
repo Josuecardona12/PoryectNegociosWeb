@@ -7,6 +7,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{BASE_DIR}}/public/css/appstyle.css" />
+    <link rel="stylesheet" href="{{BASE_DIR}}/public/css/home.css" />
+  <link rel="stylesheet" href="{{BASE_DIR}}/public/css/orders.css" />
+   <link rel="stylesheet" href="{{BASE_DIR}}/public/css/card.css" />
+   <link rel="stylesheet" href="{{BASE_DIR}}/public/css/check.css" />
+  
   <script src="https://kit.fontawesome.com/{{FONT_AWESOME_KIT}}.js" crossorigin="anonymous"></script>
   {{foreach SiteLinks}}
     <link rel="stylesheet" href="{{~BASE_DIR}}/{{this}}" />

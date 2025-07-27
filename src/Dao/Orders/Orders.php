@@ -1,4 +1,5 @@
 <?php
+
 namespace Dao\Orders;
 
 use Dao\Table;
@@ -40,5 +41,20 @@ class Orders extends Table
         }
 
         return $orderId;
+    }
+    public static function getAllOrders(): array
+    {
+        return self::obtenerRegistros("SELECT * FROM orders ORDER BY createdAt DESC", []);
+    }
+
+    public static function getOrderItems(int $orderId): array
+    {
+        return self::obtenerRegistros(
+            "SELECT oi.*, p.productName 
+             FROM order_items oi
+             INNER JOIN products p ON oi.productId = p.productId
+             WHERE oi.orderId = :orderId",
+            [":orderId" => $orderId]
+        );
     }
 }

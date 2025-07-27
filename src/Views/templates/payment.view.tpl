@@ -1,29 +1,45 @@
-<h2>Datos del Cliente y Pago</h2>
+<div class="form-wrapper">
+  <h2 class="form-title">Datos del Cliente y Pago</h2>
 
-{{errorMessagesHtml}}
+  <form method="POST" action="index.php?page=Checkout_Checkout" class="payment-form">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="clientName">Nombre del Cliente:</label>
+        <input type="text" id="clientName" name="clientName" placeholder="Juan Pérez" value="{{formData_clientName}}">
+      </div>
 
+      <div class="form-group">
+        <label for="clientEmail">Email:</label>
+        <input type="email" id="clientEmail" name="clientEmail" placeholder="ejemplo@correo.com" value="{{formData_clientEmail}}">
+      </div>
 
-<form method="POST" action="index.php?page=Checkout_Checkout">
-  <label>Nombre del Cliente:</label><br>
-  <input type="text" placeholder="Juan Pérez" name="clientName" value="{{formData_clientName}}"><br>
+      <div class="form-group">
+        <label for="clientPhone">Teléfono:</label>
+        <input type="text" id="clientPhone" name="clientPhone" placeholder="9999-9999" value="{{formData_clientPhone}}">
+      </div>
 
-  <label>Email:</label><br>
-  <input type="email" placeholder="ejemplo@correo.com" name="clientEmail" value="{{formData_clientEmail}}"><br>
+      <div class="form-group">
+        <label for="cardNumber">Número de Tarjeta:</label>
+        <input type="text" id="cardNumber" name="cardNumber" maxlength="16" placeholder="1234567812345678" value="{{formData_cardNumber}}">
+      </div>
 
-  <label>Teléfono:</label><br>
-  <input type="text" placeholder="9999-9999" name="clientPhone" value="{{formData_clientPhone}}"><br>
+      <div class="form-group">
+        <label for="cardName">Nombre en la Tarjeta:</label>
+        <input type="text" id="cardName" name="cardName" placeholder="Juan Pérez" value="{{formData_cardName}}">
+      </div>
 
-  <label>Número de Tarjeta:</label><br>
-  <input type="text" placeholder="1234567812345678" name="cardNumber" maxlength="16" value="{{formData_cardNumber}}"><br>
+      <div class="form-group">
+        <label for="expiry">Fecha de Expiración (MM/AA):</label>
+        <input type="text" id="expiry" name="expiry" maxlength="5" placeholder="MM/AA" value="{{formData_expiry}}">
+      </div>
 
-  <label>Nombre en la Tarjeta:</label><br>
-  <input type="text" placeholder="Juan Pérez"  name="cardName" value="{{formData_cardName}}"><br>
+      <div class="form-group">
+        <label for="cvv">CVV:</label>
+        <input type="text" id="cvv" name="cvv" maxlength="3" placeholder="123" value="{{formData_cvv}}">
+      </div>
+    </div>
 
-  <label>Fecha de Expiración (MM/AA):</label><br>
-  <input type="text" placeholder="MM/AA" name="expiry" placeholder="MM/AA" value="{{formData_expiry}}"><br>
-
-  <label>CVV:</label><br>
-  <input type="text"  placeholder="123"  name="cvv" maxlength="3" value="{{formData_cvv}}"><br><br>
-
-  <button type="submit">Confirmar Pago</button>
-</form>
+    <button type="submit" class="btn-submit">Confirmar Pago</button>
+    {{errorMessagesHtml}}
+  </form>
+</div>

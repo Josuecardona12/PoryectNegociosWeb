@@ -1,14 +1,17 @@
 <?php
+
 namespace Controllers;
 
 use Dao\Cart\Cart as CartDao;
 use Dao\Products\Products as ProductsDao;
 use Views\Renderer;
+use Utilities\Site as Site;
 
 class Cart extends PublicController
 {
     public function run(): void
     {
+        Site::addLink("public/css/orders.css");
         $sessionId = session_id();
 
         if ($_SERVER["REQUEST_METHOD"] === "POST") {

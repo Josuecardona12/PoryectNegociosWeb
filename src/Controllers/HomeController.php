@@ -10,7 +10,7 @@ class HomeController extends PublicController
 {
   public function run(): void
   {
-    Site::addLink("public/css/products.css");
+    Site::addLink("public/css/home.css");
     $viewData = [];
     $viewData["productsOnSale"] = ProductsDao::getDailyDeals();
     $viewData["productsHighlighted"] = ProductsDao::getFeaturedProducts();

@@ -5,11 +5,12 @@ namespace Controllers\Checkout;
 use Dao\Cart\Cart as CartDao;
 use Dao\Orders\Orders as OrdersDao;
 use Views\Renderer;
-
+use Utilities\Site as Site;
 class Checkout extends \Controllers\PublicController
 {
     public function run(): void
     {
+        Site::addLink("public/css/check.css");
         $sessionId = session_id();
 
         // Obtener ítems del carrito
@@ -27,7 +28,7 @@ class Checkout extends \Controllers\PublicController
         $viewData = [
             "cartItems" => $cartItems,
             "cartTotal" => number_format($total, 2),
-            "errors" => [],
+            "errorMessagesHtml" => "", // Inicializa vacío para la primera carga
             "formData" => []
         ];
 
@@ -73,7 +74,7 @@ class Checkout extends \Controllers\PublicController
                 $errors[] = "El carrito está vacío.";
             }
 
-                if (empty($errors)) {
+            if (empty($errors)) {
                 $orderId = OrdersDao::createOrder($sessionId, $formData, $cartItems, $total);
                 if ($orderId) {
                     CartDao::clearCart($sessionId);
@@ -84,13 +85,14 @@ class Checkout extends \Controllers\PublicController
                     exit;
                 }
             } else {
-                // Concatenar errores en HTML para la vista
+                // Crear el bloque HTML con errores para mostrar en la vista
                 $errorMessages = "<div style='background-color:#f8d7da;color:#721c24;padding:10px;border:1px solid #f5c6cb;border-radius:5px;margin-bottom:10px;'>";
                 foreach ($errors as $error) {
                     $errorMessages .= "⚠️ " . htmlspecialchars($error) . "<br>";
                 }
                 $errorMessages .= "</div>";
                 $viewData["errorMessagesHtml"] = $errorMessages;
+                
             }
         }
 
