@@ -74,3 +74,11 @@ CREATE TABLE
         `bitusuario` bigint(18) DEFAULT NULL,
         PRIMARY KEY (`bitacoracod`)
     ) ENGINE = InnoDB AUTO_INCREMENT = 10 DEFAULT CHARSET = utf8;
+
+INSERT INTO roles (rolescod, rolesdsc, rolesest)
+VALUES 
+  ('PBL', 'Público', 'ACT'),
+  ('ADM', 'Administrador', 'ACT'),
+  ('AUD', 'Auditor', 'ACT');
+
+

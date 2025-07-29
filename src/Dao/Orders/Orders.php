@@ -50,10 +50,10 @@ class Orders extends Table
     public static function getOrderItems(int $orderId): array
     {
         return self::obtenerRegistros(
-            "SELECT oi.*, p.productName 
-             FROM order_items oi
-             INNER JOIN products p ON oi.productId = p.productId
-             WHERE oi.orderId = :orderId",
+            "SELECT oi.*, p.productName, p.productImgUrl 
+         FROM order_items oi
+         INNER JOIN products p ON oi.productId = p.productId
+         WHERE oi.orderId = :orderId",
             [":orderId" => $orderId]
         );
     }

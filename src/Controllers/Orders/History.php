@@ -6,7 +6,7 @@ use Dao\Orders\Orders as OrdersDao;
 use Views\Renderer;
 use Utilities\Site as Site;
 
-class History extends \Controllers\PublicController
+class History extends \Controllers\PrivateController
 {
     public function run(): void
     {

@@ -6,7 +6,7 @@ use Dao\Cart\Cart as CartDao;
 use Dao\Orders\Orders as OrdersDao;
 use Views\Renderer;
 use Utilities\Site as Site;
-class Checkout extends \Controllers\PublicController
+class Checkout extends \Controllers\PrivateController
 {
     public function run(): void
     {
